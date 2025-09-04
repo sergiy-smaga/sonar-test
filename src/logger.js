@@ -20,13 +20,25 @@ const logger = () => {
   try {
     isAccessible(pathLogDir);
   } catch (error) {
-    fs.mkdirSync(pathLogDir);
+    console.warn(`Log directory doesn't exist, creating: ${pathLogDir}`);
+    try {
+      fs.mkdirSync(pathLogDir, { recursive: true });
+    } catch (mkdirError) {
+      console.error(`Failed to create log directory: ${mkdirError.message}`);
+      throw mkdirError; // Re-throw if we can't create the directory
+    }
   }
 
   try {
     isAccessible(pathLogFile);
   } catch (error) {
-    fs.writeFileSync(pathLogFile, "");
+    console.warn(`Log file doesn't exist, creating: ${pathLogFile}`);
+    try {
+      fs.writeFileSync(pathLogFile, "");
+    } catch (writeError) {
+      console.error(`Failed to create log file: ${writeError.message}`);
+      throw writeError; // Re-throw if we can't create the file
+    }
   }
 
   return (req, _, next) => {
